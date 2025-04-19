@@ -39,19 +39,19 @@ def test_json_raw():
 @pytest.fixture
 def test_s3_path():
     """Fixture to provide an S3 path for testing."""
-    return "s3://brewery-test-files-temp/test-data/test_brewery_parquet/test_brewery_parquet1"
+    return "s3://brewery-test-files-temp2/test-data/test_brewery_parquet/test_brewery_parquet1"
 
 
 @pytest.fixture
 def test_s3_path_for_json():
     """Fixture to provide an S3 path for testing."""
-    return "s3://brewery-test-files-temp/test-data/test_brewery_data.json"
+    return "s3://brewery-test-files-temp2/test-data/test_brewery_data.json"
 
 
 @pytest.fixture
 def test_s3_path_for_raw_data_handler():
     """Fixture to provide an S3 path for testing."""
-    return "s3://brewery-test-files-temp/test-data/test_brewery_parquet2/test_brewery_data2"
+    return "s3://brewery-test-files-temp2/test-data/test_brewery_parquet2/test_brewery_data2"
 
 
 @pytest.fixture
@@ -81,7 +81,7 @@ def test_wrong_url():
 @pytest.fixture
 def test_bucket_name():
     """Fixture to provide a bucket name for testing."""
-    return "brewery-test-files-temp"
+    return "brewery-test-files-temp2"
 
 
 @pytest.fixture

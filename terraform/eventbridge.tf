@@ -10,9 +10,9 @@ resource "aws_cloudwatch_event_target" "target_to_brewery_etl_lambda" {
   input = jsonencode({
     "KMS_KEY" : "alias/brewery_etl_key",
     "START_PAGE_PARAMETER_NAME" : "brewery_start_page",
-    "BRONZE_BUCKET" : "brewery-bronze-layer",
-    "SILVER_BUCKET" : "brewery-silver-layer",
-    "GOLD_BUCKET" : "brewery-gold-layer",
+    "BRONZE_BUCKET" : "brewery-bronze-layer2",
+    "SILVER_BUCKET" : "brewery-silver-layer2",
+    "GOLD_BUCKET" : "brewery-gold-layer2",
     "BRONZE_KEY" : "raw/jsons/data",
     "SILVER_KEY" : "processed/parquets/brewery_proc_data",
     "GOLD_KEY" : "brewery_type_loc_view",

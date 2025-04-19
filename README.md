@@ -40,7 +40,7 @@ nos sub-tópicos abaixo temos essas funcionalidades mais explicadas.
 ### Extração, Transformação e Escrita (+ AWS Parameter Store e Eventbridge)
 
 <p align="center">
-  <img src="https://i.imgur.com/NNQqHZq.png" alt="Brewery ETL" width="600">
+  <img src="https://i.imgur.com/nsRcEKW.png" alt="Brewery ETL" width="600">
 </p>
 
 

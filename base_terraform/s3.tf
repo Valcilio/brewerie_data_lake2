@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "brewery-test-files-temp2" {
-  bucket = "brewery-test-files-temp2"
+  bucket        = "brewery-test-files-temp2"
   force_destroy = true
 }
 

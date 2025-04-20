@@ -1,20 +1,20 @@
 resource "aws_s3_bucket" "brewery-bronze-layer" {
-  bucket = "brewery-bronze-layer2"
+  bucket        = "brewery-bronze-layer2"
   force_destroy = true
 }
 
 resource "aws_s3_bucket" "brewery-silver-layer" {
-  bucket = "brewery-silver-layer2"
+  bucket        = "brewery-silver-layer2"
   force_destroy = true
 }
 
 resource "aws_s3_bucket" "brewery-gold-layer" {
-  bucket = "brewery-gold-layer2"
+  bucket        = "brewery-gold-layer2"
   force_destroy = true
 }
 
 resource "aws_s3_bucket" "athena_outputs" {
-  bucket = "brewery-athena-outputs2"
+  bucket        = "brewery-athena-outputs2"
   force_destroy = true
 }
 

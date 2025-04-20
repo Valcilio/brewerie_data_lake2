@@ -40,42 +40,108 @@ nos sub-tópicos abaixo temos essas funcionalidades mais explicadas.
 ### Extração, Transformação e Escrita (+ AWS Parameter Store e Eventbridge)
 
 <p align="center">
-  <img src="https://i.imgur.com/nsRcEKW.png" alt="Brewery ETL" width="600">
+  <img src="https://i.imgur.com/pf6Td8R.png" alt="Brewery ETL" width="800">
 </p>
 
+A extração, transformação e escrita (ETL) é realizada através de um processo que ocorre quando ativado por um eventbridge rule que irá ativar um lambda o qual criará uma EC2,
+tal EC2 irá fazer pull de uma imagem docker do Amazon ECR para poder rodar o código python de modo conteinerizado. Tal processo irá nos levar ao seguinte:
 
+- **Extração**: Irá ser extraído 200 registros do Open Brewery DB e depois salvo um parâmetro no Parameter Store o qual irá ajudar a indicar como extrair os próximos 200 registros
+quando o ETL for rodar novamente;
+- **Transformação**: foi usado esse mesmo ETL para transformar os dados com código Python.
+    -  **Geração da coluna "brewery_location"**: ao concatenar as colunas "country", "state_province" e "city", tal transformação foi feita para ajudar a salvar os dados de 
+    modo particionado pela localização dos brewery na silvar layer.
+    - **Estruturação dos dados**: para que seja possível salvar e acessar os dados de modo mais eficiente, além de realizar queries que puxem-os, é interessante que salvemos os dados
+    no formato parquet, o qual também é o formato ideal para salvar os dados na silver layer.
+    - **Desenvolvimento de View**: por fim, para que seja possível ter acesso rápido a informações de quantidade de breweries por tipo e localidade, foi criado criado um outro arquivo parquet
+    que já estava agregado pelas informações de localidade e tipo dos breweries. Essa view foi salva na Gold Layer para acesso futuro e rápido.
+- **Escrita**: a escrita dos dados foi toda feita dentro de buckets do S3, sendo um bucket para cada uma das layers (bronze, silver e gold). Tal escrita foi feita encriptada com uma chave KMS
+para garantir maior segurança dos dados no client side.
 
 ### Medallion Architecture com Amazon S3 (+ Lifecycle e AWS KMS)
 
+<p align="center">
+  <img src="https://i.imgur.com/NT9IPRQ.png" alt="Brewery ETL" width="800">
+</p>
+
+A arquitetura do medalhão aqui foi construída usando três buckets diferentes, cada um para uma camada: bronze, prata e ouro. Cada bucket possui sua própria lifecycle rule.
+
+- **Bronze Layer**: mantém os dados no seu formato bruto, sua lifecycle manda os dados para o S3 Glacier após 30 dias para tornar mais barato;
+- **Silver Layer**: mantém os dados estruturados, sua lifecycle manda os dados para o S3 Glacier após 90 dias para tornar mais barato;
+- **Gold Layer**: mantém as views dos dados, não possui lifecycle, pois visa que os dados devem sempre estar disponíveis rapidamente.
+
 ### Monitoramento do ETL
+
+<p align="center">
+  <img src="https://i.imgur.com/fwOdDL1.png" alt="Brewery ETL" width="300">
+</p>
+
+O cloudwatch ajuda no monitoramento do ETL ao acompanhar os logs, tanto da lambda, quanto do EC2 e nos deixar a par do que ocorre no ETL em tempo real.
+
+## Acesso aos Dados
+
+<p align="center">
+  <img src="https://i.imgur.com/sgNtwqO.png" alt="Brewery ETL" width="600">
+</p>
+
+Para permitir o acesso às views via SQL, foi implementado um crawler no Glue que cataloga os dados dentro da Gold Layer e os põe em uma database do Glue, assim
+permitindo que o Athena consiga fazer queries nesses dados.
 
 ### Error Handling (Alertas e Retries)
 
+<p align="center">
+  <img src="https://i.imgur.com/s6fyoko.png" alt="Brewery ETL" width="600">
+</p>
+
+Em caso de erro, o ETL irá enviar uma mensagem via SNS para o e-mail dos usuários inscritos avisando do erro no ETL e também irá iniciar um retry que pode ocorrer até 3x consecutivas, até
+dar erro e também ser enviada uma outra mensagem avisando que os retries não foram bem sucedidos para o e-mail dos usuários responsáveis pelo ETL.
+
 ## Arquitetura do Projeto
 
-- Limitações;
-- Possíveis erros e soluções rápidas.
+Nessa seção será explicado como foi estrurado a arquitetura do projeto como um todo e repartido em três partes: software, CI/CD e Cloud.
 
 ### Arquitetura do Software
 
-- Desenho da Arquitetura;
-- Trade-offs;
-- Escolhas.
+<p align="center">
+  <img src="https://i.imgur.com/Eyycvqd.png" alt="Brewery ETL" width="800">
+</p>
+
+Aqui foi decidido utilizar uma arquitetura de software conhecida como clean architecture. Cada camada irá possuir uma parte da aplicação com responsabilidades semelhantes, segue as camadas:
+
+- **Artifacts**: aqui são contidos os artefatos usados na validação dos dados.
+- **Entities**: aqui é onde possuímos a entity principal do código (brewery) e valida se os dados estão de acordo com a natureza esperada (data types).
+- **Use Cases**: aqui são contidos os casos de uso, nesse caso, os códigos com a lógica por trás da extração, transformação e escrita dos dados.
+- **Handlers**: aqui está o código que irá nos permitir nos conectar com os fatores externos, sendo responsável por toda integração entre a AWS e as regras de negócio implementadas
+nas entities e use cases.
+- **Utils**: aqui teremos um código mais génerico, mas ainda sim útil, essa camada nos ajuda na geração dos logs.
+- **Main**: esse código já pode ser considerado um dos fatores externos, ele irá permitir que iniciemos o software de modo apropriado, centralizando todo o código nele através de imports.
+- **Unity & Integration Tests**: todo o código possui testes unitários e de integração, eles foram construídos com base no Pytest e podem ser visto na pasta "tests" na raiz do projeto.
+
+Para uma compreensão mais aprofundada do código, recomendo que leia as docstrings, todas as funções, métodos, classes e módulos possuem docstrings no próprio código.
 
 ### Arquitetura da Pipeline de CI/CD
 
-- Desenho da Arquitetura;
-- Etapas;
-- Jobs;
-- Ferramentas.
+<p align="center">
+  <img src="https://i.imgur.com/XY9rrdK.png" alt="Brewery ETL" width="1200">
+</p>
+
+Aqui temos a pipeline de CI/CD do projeto que roda no github actions, ela irá funcionar como mostrado acima, mas precisará de alguns secrets que estão descritos
+abaixo. Secrets:
+
+- ****:
 
 ### Arquitetura da Cloud
 
-- Desenho da Arquitetura;
+<p align="center">
+  <img src="https://i.imgur.com/jiiDzKI.png" alt="Brewery ETL" width="800">
+</p>
+
 - Trade-offs;
 - Utilidade de cada serviço.
 
 ## Como implementar o projeto
+
+- Possíveis erros e soluções rápidas.
 
 ### Passo 1: Setup AWS Account
 
@@ -85,21 +151,19 @@ nos sub-tópicos abaixo temos essas funcionalidades mais explicadas.
 
 #### Criando S3 para terraform state
 
-### Passo 2: Setup Github Repository
+### Passo 2: Setup Github Repository e Rodar os Actions
 
 #### Criando um repositório no Github e clonando o original
 
-#### Substituindo nome dos buckets
+#### Substituindo os nomes dos buckets
 
 #### Setando Repository Secrets no Github
-
-### Passo 3: Implementar o Projeto com o Github Actions
 
 #### Primeiro Commit: Ativando Github Actions
 
 #### Acompanhando o Deployment do Actions
 
-### Passo 4: Testar o Projeto no Console da AWS
+### Passo 3: Testar o Projeto no Console da AWS
 
 #### Triggering Lambda Function
 

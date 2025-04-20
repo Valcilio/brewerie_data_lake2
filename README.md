@@ -108,13 +108,13 @@ Nessa seção será explicado como foi estrurado a arquitetura do projeto como u
 
 Aqui foi decidido utilizar uma arquitetura de software conhecida como clean architecture. Cada camada irá possuir uma parte da aplicação com responsabilidades semelhantes, segue as camadas:
 
-- **Artifacts**: aqui são contidos os artefatos usados na validação dos dados.
-- **Entities**: aqui é onde possuímos a entity principal do código (brewery) e valida se os dados estão de acordo com a natureza esperada (data types).
-- **Use Cases**: aqui são contidos os casos de uso, nesse caso, os códigos com a lógica por trás da extração, transformação e escrita dos dados.
+- **Artifacts**: aqui são contidos os artefatos usados na validação dos dados;
+- **Entities**: aqui é onde possuímos a entity principal do código (brewery) e valida se os dados estão de acordo com a natureza esperada (data types);
+- **Use Cases**: aqui são contidos os casos de uso, nesse caso, os códigos com a lógica por trás da extração, transformação e escrita dos dados;
 - **Handlers**: aqui está o código que irá nos permitir nos conectar com os fatores externos, sendo responsável por toda integração entre a AWS e as regras de negócio implementadas
-nas entities e use cases.
-- **Utils**: aqui teremos um código mais génerico, mas ainda sim útil, essa camada nos ajuda na geração dos logs.
-- **Main**: esse código já pode ser considerado um dos fatores externos, ele irá permitir que iniciemos o software de modo apropriado, centralizando todo o código nele através de imports.
+nas entities e use cases;
+- **Utils**: aqui teremos um código mais génerico, mas ainda sim útil, essa camada nos ajuda na geração dos logs;
+- **Main**: esse código já pode ser considerado um dos fatores externos, ele irá permitir que iniciemos o software de modo apropriado, centralizando todo o código nele através de imports;
 - **Unity & Integration Tests**: todo o código possui testes unitários e de integração, eles foram construídos com base no Pytest e podem ser visto na pasta "tests" na raiz do projeto.
 
 Para uma compreensão mais aprofundada do código, recomendo que leia as docstrings, todas as funções, métodos, classes e módulos possuem docstrings no próprio código.
@@ -128,20 +128,28 @@ Para uma compreensão mais aprofundada do código, recomendo que leia as docstri
 Aqui temos a pipeline de CI/CD do projeto que roda no github actions, ela irá funcionar como mostrado acima, mas precisará de alguns secrets que estão descritos
 abaixo. Secrets:
 
-- ****:
+- **ACCOUNT_ID**: o ID da sua conta da AWS;
+- **AWS_ACCESS_KEY_ID**: o ID do seu IAM User na AWS;
+- **AWS_DEFAULT_REGION**: a região da AWS onde você irá deployar a aplicação;
+- **AWS_SECRET_ACCESS_KEY**: a secret access key do seu IAM User na AWS;
+- **SNS_EMAIL_SUBSCRIBED**: o email que irá receber notificações da AWS em caso de erro.
 
 ### Arquitetura da Cloud
 
 <p align="center">
-  <img src="https://i.imgur.com/jiiDzKI.png" alt="Brewery ETL" width="800">
+  <img src="https://i.imgur.com/jiiDzKI.png" alt="Brewery ETL" width="1200">
 </p>
 
-- Trade-offs;
-- Utilidade de cada serviço.
+Aqui é a arquitura mais completa da cloud, no decorrer dessa documentação já foi explicado como ela funciona em partes, mas é possível visualizá-la toda conectada agora.
 
 ## Como implementar o projeto
 
-- Possíveis erros e soluções rápidas.
+Antes de tudo, gostaria de deixar um aviso aqui, sobre dois possíveis erros que podem ocorrer ao tentar implementar o projeto em uma conta nova da AWS:
+
+1. **ECR Build Error**: quando o terraform for criar o ECR, pode haver um erro na pipeline, apenas rode novamente, se o erro persistir, aguarde a AWS liberar seu acesso ao EC2 para ativar novamente a pipeline;
+2. **Lambda Create EC2 Error**: outro erro que irá ocorrer é a AWS bloquear sua lambda de criar uma EC2, recomendo novamente aguardar a AWS liberar seu acesso ao EC2 para poder ativar mais uma vez a lambda.
+
+Abaixo temos o passo a passo de como implementar o projeto.
 
 ### Passo 1: Setup AWS Account
 

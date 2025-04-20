@@ -125,14 +125,7 @@ Para uma compreensão mais aprofundada do código, recomendo que leia as docstri
   <img src="https://i.imgur.com/XY9rrdK.png" alt="Brewery ETL" width="1200">
 </p>
 
-Aqui temos a pipeline de CI/CD do projeto que roda no github actions, ela irá funcionar como mostrado acima, mas precisará de alguns secrets que estão descritos
-abaixo. Secrets:
-
-- **ACCOUNT_ID**: o ID da sua conta da AWS;
-- **AWS_ACCESS_KEY_ID**: o ID do seu IAM User na AWS;
-- **AWS_DEFAULT_REGION**: a região da AWS onde você irá deployar a aplicação;
-- **AWS_SECRET_ACCESS_KEY**: a secret access key do seu IAM User na AWS;
-- **SNS_EMAIL_SUBSCRIBED**: o email que irá receber notificações da AWS em caso de erro.
+Aqui temos a pipeline de CI/CD do projeto que roda no github actions, ela irá funcionar como mostrado acima, mas precisará de alguns secrets que estão descritas no passo a passo.
 
 ### Arquitetura da Cloud
 
@@ -154,7 +147,8 @@ que os dados são poucos e a quantidade não é variável por run do ETL.
 Antes de tudo, gostaria de deixar um aviso aqui, sobre dois possíveis erros que podem ocorrer ao tentar implementar o projeto em uma conta nova da AWS:
 
 1. **ECR Build Error**: quando o terraform for criar o ECR, pode haver um erro na pipeline, apenas rode novamente, se o erro persistir, aguarde a AWS liberar seu acesso ao EC2 para ativar novamente a pipeline;
-2. **Lambda Create EC2 Error**: outro erro que irá ocorrer é a AWS bloquear sua lambda de criar uma EC2, recomendo novamente aguardar a AWS liberar seu acesso ao EC2 para poder ativar mais uma vez a lambda.
+2. **Lambda Create EC2 Error**: outro erro que irá ocorrer é a AWS bloquear sua lambda de criar uma EC2, recomendo novamente aguardar a AWS liberar seu acesso ao EC2 para poder ativar mais uma vez a lambda;
+3. **Bucket Creation Error**: caso você esqueça de mudar o nome dos buckets irá ocorrer um erro, esse é um ponto de grande atenção, siga o tutorial e os substitua.
 
 Abaixo temos o passo a passo de como implementar o projeto.
 
@@ -166,32 +160,77 @@ Para criar uma conta na AWS, eu recomendo seguir o passo a passo da documentaç�
 
 #### Criando ADMIN IAM
 
-Basta seguir o mesmo passo a passo do tutorial abaixo:
+Clique na imagem abaixo que ela irá lhe redirecionar a um vídeo demonstrando como fazê-lo:
 
-https://youtu.be/VSyHOs0TgAI
+[![Assista ao vídeo](https://img.youtube.com/vi/VSyHOs0TgAI/hqdefault.jpg)](https://youtu.be/VSyHOs0TgAI)
 
-OBS: o usuário mostrado no vídeo, não existe mais.
+É recomendado que crie a conta com permissão de ADMIN, pois existem vários serviços utilizados nesse projeto, caso não seja possível, recomendo ir estudando e dando as permissões específicas.
 
 #### Criando S3 para terraform state
 
+Clique na imagem abaixo que ela irá lhe redirecionar a um vídeo demonstrando como fazê-lo:
+
+[![Assista ao vídeo](https://img.youtube.com/vi/PSTP0EjSkDg/hqdefault.jpg)](https://youtu.be/PSTP0EjSkDg)
+
+OBS: Não colocar o mesmo nome do S3 Bucket que eu indiquei aqui, pois os buckets devem ter nomes únicos globalmente.
+
 ### Passo 2: Setup Github Repository e Rodar os Actions
 
-#### Criando um repositório no Github e clonando o original
+#### Clone o repositório original
+
+Clone o repositório original na sua máquina local com o comando: git clone https://github.com/Valcilio/brewerie_data_lake2.git
+
+#### Criando um repositório no Github e Configurando Secrets
+
+Clique na imagem abaixo que ela irá lhe redirecionar a um vídeo demonstrando como fazê-lo:
+
+[![Assista ao vídeo](https://img.youtube.com/vi/e_mc9XcOoKk/hqdefault.jpg)](https://youtu.be/e_mc9XcOoKk)
+
+As secrets a serem configuradas, são essas:
+
+- **ACCOUNT_ID**: o ID da sua conta da AWS;
+- **AWS_ACCESS_KEY_ID**: o ID do seu IAM User na AWS;
+- **AWS_DEFAULT_REGION**: a região da AWS onde você irá deployar a aplicação;
+- **AWS_SECRET_ACCESS_KEY**: a secret access key do seu IAM User na AWS;
+- **SNS_EMAIL_SUBSCRIBED**: o email que irá receber notificações da AWS em caso de erro.
 
 #### Substituindo os nomes dos buckets
 
-#### Setando Repository Secrets no Github
+Clique na imagem abaixo que ela irá lhe redirecionar a um vídeo demonstrando como fazê-lo:
+
+[![Assista ao vídeo](https://img.youtube.com/vi/DMzeRniHIcA/hqdefault.jpg)](https://youtu.be/DMzeRniHIcA)
+
+Os nomes dos buckets que precisam ser substituídos são os seguintes:
+
+1. brewery-bronze-layer2
+2. brewery-silver-layer2
+3. brewery-gold-layer2
+4. brewery-athena-outputs2
+5. brewery-test-files-temp2
+6. terraform-states-brewery2
+
+O 6º deve ser substítuido pelo nome do bucket que você criou manualmente, os demais podem ser nomes a gosto, recomendo substituir da forma indicada no vídeo para previnir erros.
 
 #### Primeiro Commit: Ativando Github Actions
 
+Adicione o repositório criado como a origin e mande o código clonado para ele.
+
 #### Acompanhando o Deployment do Actions
+
+Clique na imagem abaixo que ela irá lhe redirecionar a um vídeo demonstrando como fazê-lo:
+
+[![Assista ao vídeo](https://img.youtube.com/vi/BMx0tuVAqQo/hqdefault.jpg)](https://youtu.be/BMx0tuVAqQo)
 
 ### Passo 3: Testar o Projeto no Console da AWS
 
 #### Triggering Lambda Function
 
-#### Acompanhando EC2 Instance
+Clique na imagem abaixo que ela irá lhe redirecionar a um vídeo demonstrando como fazê-lo:
 
-#### Triggering Glue Crawler
+[![Assista ao vídeo](https://img.youtube.com/vi/a0LdPyWOHCE/hqdefault.jpg)](https://youtu.be/a0LdPyWOHCE)
 
-#### Configurando o Athena e Rodando Queries
+#### Triggering Glue Crawler e Rodando Queries
+
+Clique na imagem abaixo que ela irá lhe redirecionar a um vídeo demonstrando como fazê-lo:
+
+[![Assista ao vídeo](https://img.youtube.com/vi/L8WCWy70ReY/hqdefault.jpg)](https://youtu.be/L8WCWy70ReY)

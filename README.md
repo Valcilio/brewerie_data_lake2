@@ -142,6 +142,13 @@ abaixo. Secrets:
 
 Aqui é a arquitura mais completa da cloud, no decorrer dessa documentação já foi explicado como ela funciona em partes, mas é possível visualizá-la toda conectada agora.
 
+Existem alguns pontos de melhoria possíveis para esse projeto:
+
+- **Implementação de Cloudwatch Alarms**: implementar o cloudwatch alarms para avisar quando ocorrer um erro relacionado a recursos computacionais na EC2 poderia cobrir erros que ainda não foram cobertos.
+Isso não foi implementado, pois não há necessidade real visto que a quantidade de dados é baixa e fixa para cada run do ETL, porém, ainda poderia ser interessante implementar por questões de segurança.
+- **Implementação de Auto Scaling Policy**: implementar uma auto scaling policy para que caso precise de mais poder processual também é algo válido, porém aqui também não há necessidade real visto
+que os dados são poucos e a quantidade não é variável por run do ETL.
+
 ## Como implementar o projeto
 
 Antes de tudo, gostaria de deixar um aviso aqui, sobre dois possíveis erros que podem ocorrer ao tentar implementar o projeto em uma conta nova da AWS:
@@ -155,7 +162,15 @@ Abaixo temos o passo a passo de como implementar o projeto.
 
 #### Criando conta na AWS
 
+Para criar uma conta na AWS, eu recomendo seguir o passo a passo da documentação oficial: https://aws.amazon.com/resources/create-account/
+
 #### Criando ADMIN IAM
+
+Basta seguir o mesmo passo a passo do tutorial abaixo:
+
+https://youtu.be/VSyHOs0TgAI
+
+OBS: o usuário mostrado no vídeo, não existe mais.
 
 #### Criando S3 para terraform state
 

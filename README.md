@@ -42,7 +42,7 @@ These functionalities are described in the sections below.
   <img src="https://i.imgur.com/pf6Td8R.png" alt="Brewery ETL" width="800">
 </p>
 
-The ETL process is triggered by an EventBridge rule that activates a Lambda function, which in turn creates an EC2 instance.
+The ETL process is triggered by an EventBridge rule that activates a Lambda function, which in turn creates an ephemeral EC2 instance.
 This EC2 pulls a Docker image from Amazon ECR to run the Python code in a containerized environment. This process includes:
 
 - **Extraction**: 200 records are extracted from Open Brewery DB and a parameter is saved to Parameter Store, which helps indicate the next 200 records to fetch in the subsequent ETL run;
@@ -51,6 +51,9 @@ This EC2 pulls a Docker image from Amazon ECR to run the Python code in a contai
     - **Data Structuring**: to efficiently store and query data, it is saved in the Parquet format, which is ideal for the silver layer.
     - **View Development**: to quickly access the number of breweries by type and location, an aggregated Parquet file was created and saved in the Gold Layer.
 - **Load**: data is written to S3 buckets (one for each layer: bronze, silver, and gold). The write process uses KMS encryption to ensure client-side security.
+
+This ETL process starts extracting data from the page number descripted in the SSM parameter store and update the parameter with the same number +4 (each extraction takes data from 4 pages), so
+the next extraction always start from when the last one stopped.
 
 ### Medallion Architecture with Amazon S3 (+ Lifecycle and AWS KMS)
 
@@ -129,7 +132,15 @@ This diagram shows the complete cloud architecture. Individual components were d
 Possible improvements:
 
 - **Implement CloudWatch Alarms**: Could help detect EC2-related issues. Not implemented due to the low, fixed data volume, but could enhance reliability.
-- **Implement Auto Scaling Policy**: Not necessary for this static data load, but could help if requirements grow.
+- **Implement Auto Scaling Policy**: Not necessary for this static data quantity, but could help if requirements grow.
+
+Those two improvements points wasn't implemented because the quantity of data is static (always 200 jsons), so the chance to we need some alarms or auto scaling
+to handle computer resources problems is very low, but we could put it just for security reasons depending of the context. One other point is:
+
+- **Implement Custom Security Group, VPC and Subnet Config**: Could help to protect the EC2 from external invasions by limiting the IPs which can access the EC2.
+
+This point wasn't implemented because the EC2 instances created aren't permanent, they only works during the process and after this they are terminated, so the chance
+to they being invaded is very low. But we could implement those IP restrictions to the instance if we want more security.
 
 ## How to Deploy the Project
 
@@ -215,6 +226,25 @@ Click in the image below:
 Click in the image below:
 
 [![Watch Video](https://img.youtube.com/vi/a0LdPyWOHCE/hqdefault.jpg)](https://youtu.be/a0LdPyWOHCE)
+
+You can take request example from the Eventbridge's rule it will be formatted, but you cant this below and format it by yourself too:
+
+{
+  "KMS_KEY" : "alias/brewery_etl_key",
+  "START_PAGE_PARAMETER_NAME" : "brewery_start_page",
+  "BRONZE_BUCKET" : "YOUR_BRONZE_BUCKET_NAME",
+  "SILVER_BUCKET" : "YOUR_SILVER_BUCKET_NAME",
+  "GOLD_BUCKET" : "YOUR_SILVER_BUCKET_NAME",
+  "BRONZE_KEY" : "raw/jsons/data",
+  "SILVER_KEY" : "processed/parquets/brewery_proc_data",
+  "GOLD_KEY" : "brewery_type_loc_view",
+  "AWS_REGION" : "us-east-1",
+  "AWS_ACCOUNT_ID" : "YOUR_AWS_ACCOUNT_ID",
+  "RETRY_NUMBER" : "0",
+  "LAMBDA_NAME" : "brewery_etl_lambda"
+}
+
+Remember to replace the buckets' name and the aws account id with the one from your own account.
 
 #### Trigger Glue Crawler and Run Queries
 

@@ -144,11 +144,12 @@ to they being invaded is very low. But we could implement those IP restrictions 
 
 ## How to Deploy the Project
 
-There is three common errors when deploying to be aware and avoid:
+There is three common errors when deploying to be aware and avoid, the first two occur when you create a new aws account and
+the EC2 access wasn't granted yet, last one is if you forget to rename the buckets:
 
 1. **ECR Build Error**: If an error occurs, rerun the pipeline. If it persists, wait for AWS to grant EC2 access;
 2. **Lambda EC2 Creation Error**: AWS might block Lambda from creating an EC2. Wait for EC2 access to be unlocked;
-3. **Bucket Creation Error**: If you forget to rename buckets, errors will occur. Follow the tutorial carefully.
+3. **Bucket Creation Error**: If you forget to rename buckets, this error will occur. Follow the tutorial carefully.
 
 Below follow the tutorial.
 
@@ -160,7 +161,7 @@ Follow AWS’s official guide: https://aws.amazon.com/resources/create-account/
 
 #### Create ADMIN IAM
 
-Click the image below to view the video tutorial:
+Click the image below to view the video tutorial (the user created in this video was deleted):
 
 [![Watch Video](https://img.youtube.com/vi/VSyHOs0TgAI/hqdefault.jpg)](https://youtu.be/VSyHOs0TgAI)
 
